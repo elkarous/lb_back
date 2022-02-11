@@ -5,13 +5,17 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lb.spring.SpringApplicationContext;
 import lb.spring.dto.UserDto;
+import lb.spring.services.JwtUtil;
 import lb.spring.services.UserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,62 +26,51 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    
+
+    private final AuthenticationManager authenticationManager;
+
+    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
+            throws AuthenticationException {
+        try {
+
+            UserDto user = new ObjectMapper().readValue(req.getInputStream(), UserDto.class);
+
+            return authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>()));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
-	private final AuthenticationManager authenticationManager;
+    @Override
+    protected void successfulAuthentication(HttpServletRequest req,
+                                            HttpServletResponse res,
+                                            FilterChain chain,
+                                            Authentication auth) throws IOException {
+        String email = ((User) auth.getPrincipal()).getUsername();
+        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImp");
+        JwtUtil jwtUtil = (JwtUtil) SpringApplicationContext.getBean("jwtUtil");
+        UserDto user = userService.getUserByEmail(email);
+       
+        String token = jwtUtil.generateToken(user);
+        res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+        res.addHeader("user_id", user.getEmail());
 
-	public AuthenticationFilter(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
-
-	@Override
-	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
-			throws AuthenticationException {
-		try {
-
-			UserDto user = new ObjectMapper().readValue(req.getInputStream(), UserDto.class);
-
-			return authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>()));
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \"" + user.getId() + "\"}");
 
 
-	@Override
-	protected void successfulAuthentication(HttpServletRequest req,
-											HttpServletResponse res,
-											FilterChain chain,
-											Authentication auth) throws IOException, ServletException {
-
-		String email = ((User) auth.getPrincipal()).getUsername();
-
-		UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImp");
-		UserDto user = userService.getUserByEmail(email);
-      
-		String token = Jwts.builder()
-				.setSubject(email)
-				.claim("id", user.getId())
-				.claim("name", user.getFirstName() + " " + user.getLastName())
-				.claim("role", user.getRole() )
-				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-				.signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET )
-				.compact();
-
-		res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
-		res.addHeader("user_id", user.getEmail());
-
-		res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \""+ user.getId() + "\"}");
-	
-
-	}
+    }
 
 
 }

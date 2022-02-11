@@ -8,14 +8,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import io.jsonwebtoken.Jwts;
+import lb.spring.SpringApplicationContext;
+import lb.spring.services.JwtUtil;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
+    @Autowired
+    JwtUtil jwtUtil;
 
     public AuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
@@ -41,19 +46,16 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.HEADER_STRING);
+        JwtUtil jwtUtil = (JwtUtil) SpringApplicationContext.getBean("jwtUtil");
 
         if (token != null) {
 
             token = token.replace(SecurityConstants.TOKEN_PREFIX, "");
 
-            String user = Jwts.parser()
-                    .setSigningKey( SecurityConstants.TOKEN_SECRET )
-                    .parseClaimsJws( token )
-                    .getBody()
-                    .getSubject();
+            String username = jwtUtil.extractUsername(token);
 
-            if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            if (username != null) {
+                return new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
             }
 
             return null;

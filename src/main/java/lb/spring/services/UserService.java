@@ -16,7 +16,5 @@ public interface UserService extends UserDetailsService {
  public List<UserDto> getAllUsers ();
  public void deleteUser(long id);
  public UserDto getUserByEmail(String email);
-void updateResetPasswordToken(String token, String email) throws RuntimeException;
-UserEntity getByResetPasswordToken(String token);
 void updatePassword(UserEntity user, String newPassword);
 }

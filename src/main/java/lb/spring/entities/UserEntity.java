@@ -28,14 +28,14 @@ public class UserEntity implements Serializable {
 		private  String email;
 		@Column(nullable = false)
 		private  Date creation_date;
-		
-		  @Column(name = "reset_password_token")
-		    private String resetPasswordToken;
-	public String getResetPasswordToken() {
-			return resetPasswordToken;
+		@OneToOne(cascade=CascadeType.ALL)
+		private  FileDB image;
+	
+	public FileDB getImage() {
+			return image;
 		}
-		public void setResetPasswordToken(String resetPasswordToken) {
-			this.resetPasswordToken = resetPasswordToken;
+		public void setImage(FileDB image) {
+			this.image = image;
 		}
 	public Date getCreation_date() {
 			return creation_date;

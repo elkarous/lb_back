@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -42,6 +43,7 @@ public class Security extends WebSecurityConfigurerAdapter  {
 				.cors().and()
 				.csrf().disable()
 				.authorizeRequests()
+				.antMatchers("/user/files/*").permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.addFilter(getAuthenticationFilter())
@@ -54,7 +56,7 @@ public class Security extends WebSecurityConfigurerAdapter  {
 
 
 
-
+	
 	public AuthenticationFilter getAuthenticationFilter() throws Exception {
 		final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
 		filter.setFilterProcessesUrl("/users/login");

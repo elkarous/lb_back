@@ -34,26 +34,17 @@ public class UserServiceImp implements UserService {
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setCreation_date(new java.util.Date());
 		 userRepository.save(user);
+		 
 		}
 		return  userDto;
 	}
-	@Override
-	public void updateResetPasswordToken(String token, String email)  {
-		UserEntity user = userRepository.findByEmail(email);
-		if (user!=null) {
-			user.setResetPasswordToken(token);
-		}else throw new RuntimeException("could not find any user with this email");
-	}
-@Override
-public UserEntity getByResetPasswordToken(String token) {
-return userRepository.findByResetPasswordToken(token);
-}
+
+
 @Override
 public void updatePassword(UserEntity user, String newPassword) {
 BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 String encodedPassword = passwordEncoder.encode(newPassword);
 user.setPassword(encodedPassword);
-user.setResetPasswordToken(null);
 userRepository.save(user);}
 	@Override
 	public UserDto updateUser(UserDto userDto) {

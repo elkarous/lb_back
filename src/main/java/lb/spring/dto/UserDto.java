@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 
+import lb.spring.entities.FileDB;
 import lb.spring.entities.Role;
 
 public class UserDto {
@@ -17,15 +18,7 @@ public class UserDto {
 	private  String email;
 	private Role role;
 	private  Date creation_date;
-	
-	  @Column(name = "reset_password_token")
-	    private String resetPasswordToken;
-public String getResetPasswordToken() {
-		return resetPasswordToken;
-	}
-	public void setResetPasswordToken(String resetPasswordToken) {
-		this.resetPasswordToken = resetPasswordToken;
-	}
+	private  FileDB image;
 	public Date getCreation_date() {
 			return creation_date;
 		}
@@ -95,4 +88,11 @@ public String getResetPasswordToken() {
 	public void setRole(Role role) {
 		this.role = role;
 	}
+	public FileDB getImage() {
+		return image;
+	}
+	public void setImage(FileDB image) {
+		this.image = image;
+	}
+
 }
