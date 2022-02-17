@@ -8,8 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +17,6 @@ import lb.spring.SpringApplicationContext;
 import lb.spring.services.JwtUtil;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
-    @Autowired
-    JwtUtil jwtUtil;
 
     public AuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);

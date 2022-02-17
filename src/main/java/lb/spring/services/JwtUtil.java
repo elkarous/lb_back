@@ -16,7 +16,7 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    private String SECRET_KEY = "926D96C90030DD58429D2751AC1BDBBC";
+    private final  String  secretKey = "926D96C90030DD58429D2751AC1BDBBC";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -31,7 +31,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
     public Boolean isTokenExpired(String token) {
@@ -49,19 +49,16 @@ public class JwtUtil {
     	
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60*60*24 ))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS256, secretKey).compact();
     }
 
-    public Boolean validateToken(String token, UserDto userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getEmail()) && !isTokenExpired(token));
-    }
+
     public String generateTokenByEmail (String email){
 	      
 		return Jwts.builder()
 				.setSubject(email)
 				.setExpiration(new Date(System.currentTimeMillis() +1000*60 ))
-				.signWith(SignatureAlgorithm.HS512, SECRET_KEY )
+				.signWith(SignatureAlgorithm.HS512, secretKey )
 				.compact();
 	   
    }

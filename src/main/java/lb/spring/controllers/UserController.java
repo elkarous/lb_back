@@ -1,8 +1,9 @@
 package lb.spring.controllers;
 
+import lb.spring.entities.UserEntity;
+import lb.spring.repositories.FileDBRepository;
+import lb.spring.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,17 +14,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lb.spring.dto.ResetPassword;
 import lb.spring.dto.UserDto;
 import lb.spring.entities.FileDB;
-import lb.spring.repositories.FileDBRepository;
 import lb.spring.services.FileStorageService;
 import lb.spring.services.JwtUtil;
 import lb.spring.services.PasswordServices;
 import lb.spring.services.UserService;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
+import java.util.Optional;
 
 import javax.mail.MessagingException;
 
@@ -35,18 +33,18 @@ public class UserController {
     @Autowired
     UserService userService;
     @Autowired
+    FileDBRepository userRep;
+    @Autowired
     PasswordServices passwordServices;
-	@Autowired
-	FileStorageService fileStorageService ;
-	@Autowired
-	FileDBRepository fileDBRepository ;
+    @Autowired
+    FileStorageService fileStorageService;
     @Autowired
     JwtUtil jwtUtil;
 
     @PostMapping("/resetPassword")
     public void resetPassword(@RequestBody ResetPassword resetPassword) {
         String token = resetPassword.getToken();
-        if (!jwtUtil.isTokenExpired(token)) {
+        if (Boolean.TRUE.equals(jwtUtil.isTokenExpired(token))) {
             String email = jwtUtil.extractUsername(token);
             passwordServices.resetPassword(resetPassword, email);
         } else throw new RuntimeException("Token rxpired");
@@ -61,28 +59,30 @@ public class UserController {
 
     @PostMapping
     public UserDto addUser(@RequestPart(value = "userDto") String userDto,
-            @RequestPart(value = "image", required = false) MultipartFile file) throws IOException {
-    	UserDto user = new ObjectMapper().readValue(userDto,UserDto.class);
-    	FileDB image=fileStorageService.store(file);
-    	user.setImage(image);
-    	return userService.addUser(user);
+                           @RequestPart(value = "image", required = false) MultipartFile file) throws IOException {
+        UserDto user = new ObjectMapper().readValue(userDto, UserDto.class);
+        FileDB image = fileStorageService.store(file);
+        user.setImage(image);
+        return userService.addUser(user);
     }
 
     @PutMapping
     public UserDto updateUser(@RequestPart(value = "userDto") String userDto,
-            @RequestPart(value = "image", required = false) MultipartFile file) throws IOException{
-    	UserDto user = new ObjectMapper().readValue(userDto,UserDto.class);
-    	FileDB image=fileStorageService.store(file);
-    	user.setImage(image);
+                              @RequestPart(value = "image", required = false) MultipartFile file) throws IOException {
+        UserDto user = new ObjectMapper().readValue(userDto, UserDto.class);
+        FileDB image = fileStorageService.store(file);
+        user.setImage(image);
         return userService.updateUser(user);
     }
+
     @PostMapping("/add")
     public UserDto addUserWithoutImage(@RequestBody UserDto userDto) {
-    	return userService.addUser(userDto);
+        return userService.addUser(userDto);
     }
+
     @PutMapping("/update")
     public UserDto updateUserWithoutImage(@RequestBody UserDto userDto) {
-    	return userService.updateUser(userDto);
+        return userService.updateUser(userDto);
     }
 
     @GetMapping
@@ -94,7 +94,10 @@ public class UserController {
     public UserDto getUserById(@PathVariable(name = "id") long id) {
         return userService.getUserById(id);
     }
-
+    @GetMapping("/get/{id}")
+    public FileDB getUser(@PathVariable(name = "id") String id) {
+        return userRep.findById(id).get();
+    }
     @PostMapping("/getByEmail")
     public UserDto getUserByEmail(@RequestBody String email) {
         return userService.getUserByEmail(email);
@@ -104,6 +107,6 @@ public class UserController {
     public void deleteUser(@PathVariable(name = "id") long id) {
         userService.deleteUser(id);
     }
- 
-   
+
+
 }

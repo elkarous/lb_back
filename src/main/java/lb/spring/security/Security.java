@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
+
 
 
 
@@ -29,9 +29,9 @@ public class Security extends WebSecurityConfigurerAdapter  {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 	   @Override
-	    public void configure(WebSecurity web) throws Exception {
+	    public void configure(WebSecurity web)  {
 	        web.ignoring().antMatchers("/user/resetPassword",
-	                                   "/user/sendEmail");
+	                                               "/user/sendEmail");
 	    }
 	
 
@@ -44,6 +44,7 @@ public class Security extends WebSecurityConfigurerAdapter  {
 				.csrf().disable()
 				.authorizeRequests()
 				.antMatchers("/user/files/*").permitAll()
+				.antMatchers("/user/add").permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.addFilter(getAuthenticationFilter())

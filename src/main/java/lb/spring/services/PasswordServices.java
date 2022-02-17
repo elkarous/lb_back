@@ -23,16 +23,15 @@ public JavaMailSender emailSender;
 JwtUtil jwtUtil;
 
 
-public UserDto resetPassword(ResetPassword resetPassword,String email) {
+public void resetPassword(ResetPassword resetPassword,String email) {
 	UserDto user= userService.getUserByEmail(email);
 	user.setPassword(resetPassword.getPassword());
 	 userService.updateUser(user);
-	
-	return user;
+
 	
 }
 
-public String sendEmail(String email) throws MessagingException {
+public void sendEmail(String email) throws MessagingException {
 	 UserDto user = userService.getUserByEmail(email);
 	 if(user!=null) {
 		 
@@ -43,8 +42,8 @@ public String sendEmail(String email) throws MessagingException {
       
       MimeMessageHelper helper = new MimeMessageHelper(message, multipart, "utf-8");
       
-      String htmlMsg = "<h3>Forgot password</h3>"
-   		   +"<h2>Password:</h2><url>"+"http://localhost:4200/resetPassword/"+ jwtUtil.generateTokenByEmail(email)+"</url>"
+      String htmlMsg = "<h2>Forgot password</h3>"
+   		   +"<h3>Password:</h2><url>"+"http://localhost:4200/resetPassword/"+ jwtUtil.generateTokenByEmail(email)+"</url>"
               +"<img src='src/images/logo.png'>";
       
       message.setContent(htmlMsg, "text/html");
@@ -56,7 +55,6 @@ public String sendEmail(String email) throws MessagingException {
       
   
       this.emailSender.send(message);
-	 } 
-      return "Email Sent!";
+	 }
 }
 }
