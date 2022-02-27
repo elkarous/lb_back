@@ -1,5 +1,6 @@
 package lb.spring.services;
 
+import lb.spring.entities.Role;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -16,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    private final  String  secretKey = "926D96C90030DD58429D2751AC1BDBBC";
+    static final  String  SECRETKEY = "926D96C90030DD58429D2751AC1BDBBC";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -31,7 +32,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(SECRETKEY).parseClaimsJws(token).getBody();
     }
 
     public Boolean isTokenExpired(String token) {
@@ -42,6 +43,9 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", userDto.getFirstName() + " " + userDto.getLastName());
         claims.put("role", userDto.getRole() );
+        if(userDto.getRole()!= Role.SUPER_ADMIN) {
+            claims.put("region", userDto.getRegion().getRegion());
+        }
         return createToken(claims, userDto.getEmail());
     }
 
@@ -49,7 +53,7 @@ public class JwtUtil {
     	
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60*60*24 ))
-                .signWith(SignatureAlgorithm.HS256, secretKey).compact();
+                .signWith(SignatureAlgorithm.HS256, SECRETKEY).compact();
     }
 
 
@@ -57,8 +61,8 @@ public class JwtUtil {
 	      
 		return Jwts.builder()
 				.setSubject(email)
-				.setExpiration(new Date(System.currentTimeMillis() +1000*60 ))
-				.signWith(SignatureAlgorithm.HS512, secretKey )
+				.setExpiration(new Date(System.currentTimeMillis() +1000*120 ))
+				.signWith(SignatureAlgorithm.HS512, SECRETKEY )
 				.compact();
 	   
    }

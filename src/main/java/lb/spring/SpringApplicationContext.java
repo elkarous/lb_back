@@ -6,15 +6,15 @@ import org.springframework.context.ApplicationContextAware;
 
 public class SpringApplicationContext implements ApplicationContextAware {
 
-	private static ApplicationContext CONTEXT;
+	private static ApplicationContext context;
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        CONTEXT = applicationContext;
+        this.context = applicationContext;
 	}
 	
 	public static Object getBean(String beanName) {
-		return CONTEXT.getBean(beanName);
+		return context.getBean(beanName);
 	}
 
 }

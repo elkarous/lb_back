@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lb.spring.SpringApplicationContext;
 import lb.spring.dto.UserDto;
+import lb.spring.exceptions.ApiResponseException;
 import lb.spring.services.JwtUtil;
 import lb.spring.services.UserService;
 
@@ -46,7 +47,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>()));
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiResponseException(e);
         }
     }
 
@@ -60,14 +61,17 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImp");
         JwtUtil jwtUtil = (JwtUtil) SpringApplicationContext.getBean("jwtUtil");
         UserDto user = userService.getUserByEmail(email);
-       
-        String token = jwtUtil.generateToken(user);
-        res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
-        res.addHeader("user_id", user.getEmail());
+        Boolean blocked=user.getIsBlocked();
+       if(Boolean.TRUE.equals(blocked))throw new ApiResponseException("you are blocked ");
+       else {
+           String token = jwtUtil.generateToken(user);
 
-        res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \"" + user.getId() + "\"}");
+           res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+           res.addHeader("user_id", user.getEmail());
 
+           res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \"" + user.getId() + "\"}");
 
+       }
     }
 
 
