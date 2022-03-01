@@ -25,15 +25,9 @@ public class CampingController {
     List<Camping> getAllCamping(){
         return campingService.getAllCamping();
     }
-    @PostMapping
-    int addFile( @RequestPart(value = "image", required = false) List<MultipartFile> files) throws IOException {
-        for(MultipartFile file:files) {
-            fileStorageService.store(file);
-        }
-        return 1;
-    }
-    @GetMapping("/image/{id}")
-    Camping getImageByCampingId(@PathVariable("id") int id ){
-        return campingService.getImageByCampingId(id);
+
+    @GetMapping("/{id}")
+    Camping getCampingById(@PathVariable("id") int id ){
+        return campingService.getCampingById(id);
     }
 }

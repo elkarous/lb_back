@@ -24,5 +24,7 @@ public class CampingServiceImpl {
     public Camping getImageByCampingId(int id ){
         return campingRepository.getImage(id);
     }
-
+public Camping getCampingById(int id){
+        return this.campingRepository.findById(id).get();
+}
 }
