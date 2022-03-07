@@ -3,7 +3,6 @@ package lb.spring.services;
 import lb.spring.dto.StatUser;
 import lb.spring.entities.Camping;
 import lb.spring.entities.Region;
-import lb.spring.entities.Role;
 import lb.spring.exceptions.ApiResponseException;
 import lb.spring.repositories.CampingRepository;
 import lb.spring.repositories.RegionRepository;

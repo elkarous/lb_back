@@ -7,7 +7,6 @@ import lb.spring.dto.UserDto;
 
 import lb.spring.entities.Camping;
 import lb.spring.entities.Region;
-import lb.spring.entities.Role;
 import lb.spring.entities.UserEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
